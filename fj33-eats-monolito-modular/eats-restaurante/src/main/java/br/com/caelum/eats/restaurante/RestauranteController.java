@@ -3,6 +3,7 @@ package br.com.caelum.eats.restaurante;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import br.com.caelum.eats.administrativo.TipoDeCozinha;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -21,6 +22,7 @@ class RestauranteController {
 
 	private RestauranteRepository restauranteRepo;
 	private CardapioRepository cardapioRepo;
+	private DistanciaRestClient distanciaRestClient;
 
 	@GetMapping("/restaurantes/{id}")
 	RestauranteDto detalha(@PathVariable("id") Long id) {
@@ -55,23 +57,38 @@ class RestauranteController {
 		return restauranteSalvo;
 	}
 
-  @PutMapping("/parceiros/restaurantes/{id}")
+	@Transactional
+@PutMapping("/parceiros/restaurantes/{id}")
   public RestauranteDto atualiza(@RequestBody RestauranteDto restaurante) {
-    Restaurante doBD = restauranteRepo.getOne(restaurante.getId());
-    restaurante.populaRestaurante(doBD);
-    return new RestauranteDto(restauranteRepo.save(doBD));
-  }
+		Restaurante doBD = restauranteRepo.getOne(restaurante.getId());
 
+		TipoDeCozinha tipoDeCozinhaOriginal = doBD.getTipoDeCozinha();
+		String cepOriginal = doBD.getCep();
 
-  @GetMapping("/admin/restaurantes/em-aprovacao")
+		restaurante.populaRestaurante(doBD);
+
+		Restaurante salvo = restauranteRepo.save(doBD);
+
+		if (!tipoDeCozinhaOriginal.getId().equals(restaurante.getTipoDeCozinha().getId())
+				||
+			!cepOriginal.equals(restaurante.getCep())) {
+			distanciaRestClient.restauranteAtualizado(salvo);
+		}
+
+		return new RestauranteDto(salvo);
+	}
+
+	@GetMapping("/admin/restaurantes/em-aprovacao")
 	List<RestauranteDto> emAprovacao() {
-		return restauranteRepo.findAllByAprovado(false).stream().map(RestauranteDto::new)
-				.collect(Collectors.toList());
+		return restauranteRepo.findAllByAprovado(false).stream().map(RestauranteDto::new).collect(Collectors.toList());
 	}
 
 	@Transactional
 	@PatchMapping("/admin/restaurantes/{id}")
 	public void aprova(@PathVariable("id") Long id) {
 		restauranteRepo.aprovaPorId(id);
+
+		Restaurante restaurante = restauranteRepo.getOne(id);
+	    distanciaRestClient.novoRestauranteAprovado(restaurante);
 	}
 }
