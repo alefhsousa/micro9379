@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+  mysql.monolito:
+    image: mysql:5.7
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: caelum123
+      MYSQL_DATABASE: eats
+    volumes:
+      - mysql.eats.monolito:/var/lib/mysql
+    networks:
+      - fj33
+  mysql.pagamento:
+    image: mysql:5.7
+    ports:
+      - "3308:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: caelum123
+      MYSQL_DATABASE: eats_pagamento
+      MYSQL_USER: pagamento
+      MYSQL_PASSWORD: pagamento123
+    volumes:
+      - mysql.eats.pagamento:/var/lib/mysql
+    networks:
+      - fj33
+  mongo.distancia:
+    image: mongo:3.6
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo.eats.distancia:/data/db
+    networks:
+      - fj33
+  mongo-express:
+      image: mongo-express
+      ports:
+        - 8091:8081
+      environment:
+        ME_CONFIG_MONGODB_SERVER: mongo.distancia
+        ME_CONFIG_MONGODB_PORT: 27017
+      depends_on:
+        - mongo.distancia
+      restart: on-failure
+      networks:
+        - fj33
+volumes:
+  mysql.eats.monolito:
+  mysql.eats.pagamento:
+  mongo.eats.distancia:
+
+networks:
+  fj33:
+
