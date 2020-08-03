@@ -1,0 +1,16 @@
+<app-header></app-header>
+
+<main class="my-5">
+  <div class="container">
+    <router-outlet></router-outlet>
+  </div>
+</main>
+
+<footer class="bg-light border-top fixed-bottom pt-3">
+  <div class="container">
+    <p class="text-muted">
+      <span>Copyright © 2019 - Caelum Eats - Todos os direitos reservados</span>
+      <span *ngIf="!user" class="ml-3"><a routerLink="/restaurantes">Cadastre seu Restaurante</a></span>
+    </p>
+  </div>
+</footer>
