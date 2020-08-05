@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 services:
   mysql.monolito:
@@ -34,17 +34,25 @@ services:
     networks:
       - fj33
   mongo-express:
-      image: mongo-express
-      ports:
-        - 8091:8081
-      environment:
-        ME_CONFIG_MONGODB_SERVER: mongo.distancia
-        ME_CONFIG_MONGODB_PORT: 27017
-      depends_on:
-        - mongo.distancia
-      restart: on-failure
-      networks:
-        - fj33
+    image: mongo-express
+    ports:
+      - 8091:8081
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo.distancia
+      ME_CONFIG_MONGODB_PORT: 27017
+    depends_on:
+      - mongo.distancia
+    restart: on-failure
+    networks:
+      - fj33
+  consul:
+    image: consul:1.5
+    ports:
+      - "8500:8500"
+      - "8600:8600"
+    environment:
+      CONSUL_BIND_INTERFACE: eth0
+
 volumes:
   mysql.eats.monolito:
   mysql.eats.pagamento:
@@ -52,4 +60,3 @@ volumes:
 
 networks:
   fj33:
-
