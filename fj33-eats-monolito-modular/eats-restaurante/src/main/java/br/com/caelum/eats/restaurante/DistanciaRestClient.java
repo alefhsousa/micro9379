@@ -14,7 +14,7 @@ class DistanciaRestClient {
   private RestTemplate restTemplate;
 
   DistanciaRestClient(RestTemplate restTemplate,
-                                      @Value("${configuracao.distancia.service.url}") String distanciaServiceUrl) {
+                                      @Value("${distancia.ribbon.listOfServers}") String distanciaServiceUrl) {
     this.distanciaServiceUrl = distanciaServiceUrl;
     this.restTemplate = restTemplate;
   }
